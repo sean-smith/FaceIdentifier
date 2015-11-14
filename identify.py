@@ -43,5 +43,5 @@ def neuron(edges, input):
 
 print neuron(edges, input)
 
-if __name__ == "__main__":
-	main()
+# if __name__ == "__main__":
+# 	main()
