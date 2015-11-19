@@ -14,15 +14,16 @@ class Recognize:
 	def __init__(self):
 		self.net = self.buildNet()
 		people = []
-		for i in range(1, 41):
+		for i in range(1, 6 + 1):
 			people.append('Person'+str(i))
-		self.classify = ClassificationDataSet(10304, nb_classes=40, class_labels=people)
+		self.classify = ClassificationDataSet(10304, nb_classes=6, class_labels=people)
+		print self.classify
 
 	# This call returns a network that has two inputs, three hidden and a single output neuron. 
 	# In PyBrain, these layers are Module objects and they are already connected with FullConnection objects.	
 	def buildNet(self):
 		print "Building a network..."
-		return buildNetwork(10304, 3, 40)
+		return buildNetwork(10304, 3, 6)
 
 	def activate(self, img):
 		print "Activating a network..."
@@ -35,12 +36,15 @@ class Recognize:
 		for i in range(20):
 			trainer.trainEpochs( 1 )
 
+	def train_network(self):
+		trainer = BackpropTrainer( self.net, dataset=self.classify, momentum=0.1, verbose=True, weightdecay=0.01)
+		for i in range(20):
+			trainer.trainEpochs( 1 )
+
 
 	def train(self, img, num):
 		print "Training...", "Person = "+str(num)
-		i = self.classify.addSample(img.flatten(), [num])
-		print i
-		return i
+		self.classify.addSample(img.flatten(), [num])
 
 	def train_images(self, start, stop, num_images):
 		# Load a person and dsiplay
@@ -56,16 +60,6 @@ class Recognize:
 				# Train the neural net
 				self.train(img, i)
 
-				# cv2.namedWindow('image', cv2.WINDOW_NORMAL)
-				# cv2.imshow('image',img)
-				# k = cv2.waitKey(0) & 0xFF
-				# if k == ord('j'):
-				# 	cv2.destroyAllWindows()
-				# elif k == ord('n'):
-				# 	i+=1
-				# elif k == ord('u'):
-				# 	return
-
 	def get_max(self, list):
 		return reduce(lambda i,x,j,y: i if x > y else j, enumerate(list))
 
@@ -74,8 +68,8 @@ class Recognize:
 
 	def main(self):
 
-		result = self.train_images(1, 5, 7)
-		print result
+		self.train_images(1, 5, 7)
+		self.train_network()
 
 		# edges = np.array([[-1.5, -.5], [1, 1],[1, 1]])
 		# input = np.array([[1], [0], [1]])
@@ -88,3 +82,4 @@ class Recognize:
 if __name__ == "__main__":
 	m = Recognize()
 	m.main()
+	m.train_network()
