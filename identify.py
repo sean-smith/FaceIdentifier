@@ -19,17 +19,32 @@ from sklearn import datasets
 import numpy as np
 import cv2
 
+
+d = {
+	"train_numbers.xml": {
+		'hidden_dim': 32,
+		'nb_classes': 10,
+		'in_dim': 64,
+	},
+	"net.xml": {
+		'hidden_dim': 106,
+		'nb_classes': 40,
+		'in_dim': 10304,
+	},
+	"net_sklearn.xml": {
+		'hidden_dim': 64,
+		'nb_classes': 40,
+		'in_dim': 4096,
+	},
+}
+
+
+
 class Recognize:
 
 	def __init__(self):
 		self.trained = False
-		print "Enter 1 for data from faces and 2 for sklearn data:"
-		self.org = True if int(raw_input()) == 1 else False
-		if self.org:
-			print "Using Original data from faces/"
-		else:
-			print "Using data from sklearn"
-		self.path = None
+		self.path = "train_numbers.xml"
 		self.x = None
 		self.classify = self.classify()
 		self.net = self.buildNet()
@@ -39,31 +54,47 @@ class Recognize:
 	# In PyBrain, these layers are Module objects and they are already connected with FullConnection objects.	
 	def buildNet(self):
 		print "Building a network..."
-		self.path = 'net.xml' if self.org else 'net_sklearn.xml'
 		if  os.path.isfile(self.path): 
 			self.trained = True
  			return NetworkReader.readFrom(self.path) 
 		else:
-			dim = 106 if self.org else 64
- 			return buildNetwork(self.classify.indim, dim, self.classify.outdim, outclass=SoftmaxLayer)
+ 			return buildNetwork(self.classify.indim, 32, self.classify.outdim, outclass=SoftmaxLayer)
 		
 
 	def classify(self):
-		if self.org:
-			self.classify = ClassificationDataSet(10304, target=1, nb_classes=40)
-			self.train_images()
-		else:
-			self.classify = ClassificationDataSet(4096, target=1, nb_classes=40)
-			self.train_images2()
+
+		self.classify = ClassificationDataSet(64, target=1, nb_classes=10)
+		self.train_digits()
+
+		# self.training, self.test = self.classify.splitWithProportion(.30)
+
+		# if self.org:
+		# 	self.classify = ClassificationDataSet(10304, target=1, nb_classes=40)
+		# 	self.train_images()
+		# else:
+		# 	self.classify = ClassificationDataSet(4096, target=1, nb_classes=40)
+		# 	self.train_images2()
 		
-		# convert binary value to a number
+		
 		print "Input and output dimensions: ", self.classify.indim, self.classify.outdim
 
+		# convert binary value to a number
 		self.classify._convertToOneOfMany()
+
+		# self.training._convertToOneOfMany()
+		# self.test._convertToOneOfMany()
 
 		print "Number of training patterns: ", len(self.classify)
 		print "Input and output dimensions: ", self.classify.indim, self.classify.outdim
 		return self.classify
+
+	def identify_digits(self, i):
+		for image, label in self.images_and_labels:
+			if label == i:
+				l = self.net.activate(np.ravel(image))
+				max_index, max_value = max(enumerate(l), key=lambda x: x[1])
+				print str(i)+"   "+str(max_index), i == max_index
+
 
 	def identify(self, i):
 		if not self.org:
@@ -75,7 +106,7 @@ class Recognize:
 			l = self.net.activate(np.ravel(img))
 			max_index, max_value = max(enumerate(l), key=lambda x: x[1])
 			print str(i)+"   "+str(max_index), i == max_index
-			#print l
+			print l
 
 	def identify2(self, i):
 		for m in range(1,11):
@@ -104,14 +135,27 @@ class Recognize:
 					"  train error: %5.2f%%" % trnresult, \
 					"  test error: %5.2f%%" % tstresult
 
+				if i % 10 == 0 and i > 1:
+					print "Saving Progress... Writing to a file"
+					NetworkWriter.writeToFile(self.net, self.path)
+
 		print "Done training... Writing to a file"
 		NetworkWriter.writeToFile(self.net, self.path)
 		return trainer
 
+	def train_digits(self):
+		x = datasets.load_digits()
+		self.images_and_labels = list(zip(x.images, x.target))
+		for image, label in self.images_and_labels:
+			self.classify.addSample(np.ravel(image), label)
+
+
 	def train_images(self):
-		for i in range(1, 41):
+		for i in range(1, 5):
 			for num in range(1,11):
-				img = cv2.imread('faces/s'+str(i)+'/'+str(num)+'.pgm', 0)
+				x = 'faces/s'+str(i)+'/'+str(num)+'.pgm'
+				print x
+				img = cv2.imread(x, 0)
 				height, width = img.shape
 				print "Training...", "Person = "+str(i)
 				# print type(np.ravel(img)[0]), type(np.int64(i-1))
@@ -126,10 +170,21 @@ class Recognize:
 
 if __name__ == "__main__":
 	m = Recognize()
-	m.identify(1)
-	m.identify(2)
-	m.identify(3)
-	m.identify(4)
-	m.identify(5)
-	m.identify(6)
+	m.identify_digits(0)
+	m.identify_digits(1)
+	m.identify_digits(2)
+	m.identify_digits(3)
+	m.identify_digits(4)
+	m.identify_digits(5)
+	m.identify_digits(6)
+	m.identify_digits(7)
+	m.identify_digits(8)
+	m.identify_digits(9)
+
+	# m.identify(1)
+	# m.identify(2)
+	# m.identify(3)
+	# m.identify(4)
+	# m.identify(5)
+	# m.identify(6)
 
