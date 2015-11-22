@@ -15,7 +15,7 @@ u = [] # Extended eigenvectors M
 u_reduced = [] # Reduced eigenvectors to K = 75% M
 
 
-def read_csv():
+def main():
     # This function updates train_loc, train_class, test_loc and test_class
     # img = cv2.imread("/home/davicho/Documents/qt-workspace/CS585/Homeworks/FaceIdentifier/faces/s1/1.pgm")
     # img_flat = img.flatten()
@@ -39,6 +39,11 @@ def read_csv():
                 num = 1
     print train_class
     print test_class
+    for i in train_class:
+        img = cv2.imread(i,0)
+        img_flat = img.flatten()
+        # Build our train_array list
+        train_array.append(img_flat)
 
 def read_train_images(_data,_class):
     # Read each image
@@ -63,11 +68,9 @@ def read_train_images(_data,_class):
     # can calculate. # of eigs = rank -1 
     print matrix_rank(cov)
     eigval, eigvec = lin.eigs(cov, 38)
-    # eigval, eigvec = LA.eig(cov)
-    print len(eigval)
     print "size of the eigen vector " + str(len(eigvec[:, 0]))
-    print "size of the eigen vector matrix " + str(len(eigvec))
-    print "number of eigenvalues " + str(len(eigval))
+    print "size of the eigen vector matrix" + str(len(eigvec))
+    print "number of eigenvalues" + str(len(eigval))
     # Each eigvec[:,i] is an eigenvector of size 40
     # We need to find u_i = A * eigvec[:,i]
     A = norm_train_array.T
@@ -77,22 +80,6 @@ def read_train_images(_data,_class):
         u[i] = u[i] / numpy.linalg.norm(u[i])
     # We're only keeping 75% of the number of eigenvector u[i]
     # This will correspond to the largest eigenvalues
-    # First we will sort our eigenvalues 
-    real_eigval = []
-    for i in range(len(eigval)):
-        print i
-        real_eigval.append(eigval[i].real)
-    real_eigval = numpy.asarray(real_eigval)
-    idx = real_eigval.argsort()[::-1]   
-    sorted_eigval = real_eigval[idx]
-    sorted_u = numpy.empty(len(u))
-    print u[idx]
-    # sorted_u = u[:,idx]
-    # sorted_eigval = sorted(eigval.real)
-    # sorted_index = sorted(range(len(eigval.real)), key=lambda k: eigval[k])
-    # print sorted_eigval
-    # print sorted_index
-
     for i in range(1,(int(0.75*len(u))+4)):
         u_reduced.append(u[i])
     # u_reduced[i] are called Eigenfaces
@@ -100,7 +87,6 @@ def read_train_images(_data,_class):
     sigma = []
     omega = []
     for i, val in enumerate(list_norm_train):
-        sigma = []
         for j, val in enumerate(u_reduced):
             w = numpy.dot(u_reduced[j].T,list_norm_train[i])
             sigma.append(w.real)
@@ -118,7 +104,8 @@ def read_train_images(_data,_class):
 
 
 if __name__ == "__main__":
-    read_csv()
+    #read_csv()
+    main()
     #val, vec = read_train_images(train_loc, train_class)
     omega = read_train_images(train_loc, train_class)
     print 'Finished'
