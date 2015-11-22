@@ -19,26 +19,38 @@ def read_csv():
     # This function updates train_loc, train_class, test_loc and test_class
     # img = cv2.imread("/home/davicho/Documents/qt-workspace/CS585/Homeworks/FaceIdentifier/faces/s1/1.pgm")
     # img_flat = img.flatten()
-    with open('listFaces.csv', 'rb') as csvfile:
-        spamreader = csv.reader(csvfile)
-        num = 1
-        for row in spamreader:
-            value = row[0].split(';')
-            # print str(value[0]) + os.linesep
-            flag = 1
-            if num > 8:
-                flag = 0
-            if flag == 1:
-                train_loc.append(value[0])
-                train_class.append(value[1])
-            else:
-                test_loc.append(value[0])
-                test_class.append(value[1])
-            num += 1
-            if num == 11:
-                num = 1
+
+    for person in range(1,41):
+        for num in range(1,11):
+            path = 'faces/s'+str(person)+'/'+str(num)+'.pgm'
+
+            train_loc.append(path)
+            train_class.append(person)
+
     print train_class
-    print test_class
+    return train_loc, train_class
+
+    # with open('listFaces.csv', 'rb') as csvfile:
+    #     spamreader = csv.reader(csvfile)
+    #     num = 1
+    #     for row in spamreader:
+    #         value = row[0].split(';')
+    #         # print str(value[0]) + os.linesep
+    #         flag = 1
+    #         # if num > 8:
+    #         #     flag = 0
+    #         if flag == 1:
+    #             train_loc.append(value[0])
+    #             train_class.append(value[1])
+    #         else:
+    #             test_loc.append(value[0])
+    #             test_class.append(value[1])
+    #         num += 1
+    #         if num == 11:
+    #             num = 1
+    # print train_class
+    # print test_class
+    # return train_loc, train_class, test_loc, test_class
 
 def read_train_images(_data,_class):
     # Read each image
@@ -82,6 +94,7 @@ def read_train_images(_data,_class):
     sigma = []
     omega = []
     for i, val in enumerate(list_norm_train):
+        sigma = []
         for j, val in enumerate(u_reduced):
             w = numpy.dot(u_reduced[j].T,list_norm_train[i])
             sigma.append(w.real)
@@ -91,7 +104,7 @@ def read_train_images(_data,_class):
     print "size of eigenvector" + str(len(omega[0]))
     print "size of omega" + str(len(omega))
     #return eigval, eigvec
-    return omega
+    return omega, train_array, u, u_reduced
 
 # def visualize_eigenfaces(_eigenfaceMatrix):
 #     # Here we input our eigenfaces that will classify our data

@@ -31,6 +31,13 @@ class Recognize:
 				'train_func': self.train_digits,
 				'identify_func': self.identify_digits,
 			},
+			"net_test.xml": {
+				'hidden_dim': 15,
+				'nb_classes': 40,
+				'in_dim': 30,
+				'train_func': self.train_images,
+				'identify_func': self.identify3,
+			},
 			"net.xml": {
 				'hidden_dim': 106,
 				'nb_classes': 40,
@@ -47,7 +54,7 @@ class Recognize:
 			},
 		}
 		self.trained = False
-		self.path = "train_numbers.xml"
+		self.path = "net_test.xml"
 		self.x = None
 		self.classify = self.classify()
 		self.net = self.buildNet()
@@ -109,6 +116,16 @@ class Recognize:
 			max_index, max_value = max(enumerate(l), key=lambda x: x[1])
 			print str(i)+"   "+str(max_index), i == max_index
 
+	def identify3(self, i):
+		for i in range(len(self.omega)):
+			img = self.omega[i]
+			label = self.train_class[i]
+			# print label
+			l = self.net.activate(img)
+			max_index, max_value = max(enumerate(l), key=lambda x: x[1])
+			print str(label)+"   "+str(max_index), int(label) == int(max_index)
+
+
 	def train(self):
 		print "Enter the number of times to train, -1 means train until convergence:"
 		t = int(raw_input())
@@ -147,19 +164,25 @@ class Recognize:
 
 	def train_images(self):
 		# Call eigenfaces here
+		train_loc, self.train_class = eigenfaces.read_csv()
+		self.omega, train_array, u, u_reduced = eigenfaces.read_train_images(train_loc, self.train_class)
+		
+		for i in range(len(self.omega)):
+			img = self.omega[i]
+			label = self.train_class[i]
+			self.classify.addSample(img, int(label)-1)
 
-		# Loop through vector of (eigenfacevector, label)
-			# addsample
+			
 
-		for i in range(1, 5):
-			for num in range(1,11):
-				x = 'faces/s'+str(i)+'/'+str(num)+'.pgm'
-				print x
-				img = cv2.imread(x, 0)
-				height, width = img.shape
-				print "Training...", "Person = "+str(i)
-				# print type(np.ravel(img)[0]), type(np.int64(i-1))
-				self.classify.addSample(np.ravel(img), np.int64(i-1))
+		# for i in range(1, 5):
+		# 	for num in range(1,11):
+		# 		x = 'faces/s'+str(i)+'/'+str(num)+'.pgm'
+		# 		print x
+		# 		img = cv2.imread(x, 0)
+		# 		height, width = img.shape
+		# 		print "Training...", "Person = "+str(i)
+		# 		# print type(np.ravel(img)[0]), type(np.int64(i-1))
+		# 		self.classify.addSample(np.ravel(img), np.int64(i-1))
 
 	def train_images2(self):
 		self.x = datasets.fetch_olivetti_faces()
@@ -175,11 +198,6 @@ if __name__ == "__main__":
 	m.identify(2)
 	m.identify(3)
 	m.identify(4)
-	m.identify(5)
-	m.identify(6)
-	m.identify(7)
-	m.identify(8)
-	m.identify(9)
 
 	# m.identify(1)
 	# m.identify(2)
