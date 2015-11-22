@@ -14,35 +14,38 @@ from numpy.random import multivariate_normal
 
 
 from sklearn import datasets
-
-
 import numpy as np
 import cv2
 
-
-d = {
-	"train_numbers.xml": {
-		'hidden_dim': 32,
-		'nb_classes': 10,
-		'in_dim': 64,
-	},
-	"net.xml": {
-		'hidden_dim': 106,
-		'nb_classes': 40,
-		'in_dim': 10304,
-	},
-	"net_sklearn.xml": {
-		'hidden_dim': 64,
-		'nb_classes': 40,
-		'in_dim': 4096,
-	},
-}
-
+import eigenfaces
 
 
 class Recognize:
 
 	def __init__(self):
+		self.d = {
+			"train_numbers.xml": {
+				'hidden_dim': 32,
+				'nb_classes': 10,
+				'in_dim': 64,
+				'train_func': self.train_digits,
+				'identify_func': self.identify_digits,
+			},
+			"net.xml": {
+				'hidden_dim': 106,
+				'nb_classes': 40,
+				'in_dim': 10304,
+				'train_func': self.train_images,
+				'identify_func': self.identify1,
+			},
+			"net_sklearn.xml": {
+				'hidden_dim': 64,
+				'nb_classes': 40,
+				'in_dim': 4096,
+				'train_func': self.train_images2,
+				'identify_func': self.identify2,
+			},
+		}
 		self.trained = False
 		self.path = "train_numbers.xml"
 		self.x = None
@@ -58,22 +61,15 @@ class Recognize:
 			self.trained = True
  			return NetworkReader.readFrom(self.path) 
 		else:
- 			return buildNetwork(self.classify.indim, 32, self.classify.outdim, outclass=SoftmaxLayer)
+ 			return buildNetwork(self.classify.indim, self.d[self.path]['hidden_dim'], self.classify.outdim, outclass=SoftmaxLayer)
 		
 
 	def classify(self):
 
-		self.classify = ClassificationDataSet(64, target=1, nb_classes=10)
-		self.train_digits()
+		self.classify = ClassificationDataSet(self.d[self.path]['in_dim'], target=1, nb_classes=self.d[self.path]['nb_classes'])
+		self.d[self.path]['train_func']()
 
 		# self.training, self.test = self.classify.splitWithProportion(.30)
-
-		# if self.org:
-		# 	self.classify = ClassificationDataSet(10304, target=1, nb_classes=40)
-		# 	self.train_images()
-		# else:
-		# 	self.classify = ClassificationDataSet(4096, target=1, nb_classes=40)
-		# 	self.train_images2()
 		
 		
 		print "Input and output dimensions: ", self.classify.indim, self.classify.outdim
@@ -95,11 +91,10 @@ class Recognize:
 				max_index, max_value = max(enumerate(l), key=lambda x: x[1])
 				print str(i)+"   "+str(max_index), i == max_index
 
-
 	def identify(self, i):
-		if not self.org:
-			self.identify2(i)
-			return
+		self.d[self.path]['identify_func'](i)
+
+	def identify1(self, i):
 		print "Identifying Image 1"
 		for num in range(1,11):
 			img = cv2.imread('faces/s'+str(i)+'/'+str(num)+'.pgm', 0)
@@ -151,6 +146,11 @@ class Recognize:
 
 
 	def train_images(self):
+		# Call eigenfaces here
+
+		# Loop through vector of (eigenfacevector, label)
+			# addsample
+
 		for i in range(1, 5):
 			for num in range(1,11):
 				x = 'faces/s'+str(i)+'/'+str(num)+'.pgm'
@@ -170,16 +170,16 @@ class Recognize:
 
 if __name__ == "__main__":
 	m = Recognize()
-	m.identify_digits(0)
-	m.identify_digits(1)
-	m.identify_digits(2)
-	m.identify_digits(3)
-	m.identify_digits(4)
-	m.identify_digits(5)
-	m.identify_digits(6)
-	m.identify_digits(7)
-	m.identify_digits(8)
-	m.identify_digits(9)
+	m.identify(0)
+	m.identify(1)
+	m.identify(2)
+	m.identify(3)
+	m.identify(4)
+	m.identify(5)
+	m.identify(6)
+	m.identify(7)
+	m.identify(8)
+	m.identify(9)
 
 	# m.identify(1)
 	# m.identify(2)
