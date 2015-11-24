@@ -71,57 +71,60 @@ def read_train_images(_data,_class):
     norm_train_array = numpy.asarray(list_norm_train)
     # Compute the covariance matrix of the array
     cov = numpy.dot(norm_train_array, norm_train_array.T)
-    # This line will help us to define how many eigenvectors we
-    # can calculate. # of eigs = rank -1 
-    print matrix_rank(cov)
-    eigval, eigvec = lin.eigs(cov, 38)
-    # eigval, eigvec = LA.eig(cov)
-    print len(eigval)
-    print "size of the eigen vector " + str(len(eigvec[:, 0]))
-    print "size of the eigen vector matrix " + str(len(eigvec))
-    print "number of eigenvalues " + str(len(eigval))
+    [mm, nn] = cov.shape
+    print "Size of the Cov Matrix is: " + str(mm*nn)
+    # print "Rank of the Cov Matrix is: " + str(matrix_rank(cov))
+    # print "Number of non zero elements in CM: " + str(numpy.count_nonzero(cov))
+    # We're choosing numpy eig function rather than scipy
+    # It calculates same # of eigval, eigvec as size of matrix
+    # eigval, eigvec = lin.eigs(cov, 48)
+    eigval, eigvec = LA.eig(cov)
+    eigval = eigval.real
+    eigvec = eigvec.real
+    # numpy.savetxt('eigval.out', eigval.real, delimiter=',')
+    # numpy.savetxt('eigvec.out', eigvec.real, delimiter=',')
+    print "Number of Eigenvalues: " + str(len(eigval))
+    print "Size of the Eigenvector: " + str(len(eigvec[:, 0]))
+    print "Number of Eigenvectors: " + str(len(eigvec))
     # Each eigvec[:,i] is an eigenvector of size 40
     # We need to find u_i = A * eigvec[:,i]
     A = norm_train_array.T
-    for i in range(1,(len(eigvec[0]+1))):
-        u.append(numpy.dot(A,eigvec[:,i]))
+    for i in range(0, len(eigvec[:, 0])):
+        u.append(numpy.dot(A, eigvec[:, i]))
     for i, val in enumerate(u):
         u[i] = u[i] / numpy.linalg.norm(u[i])
+    print "Size of the new norm eigenvector: " + str(len(u[0]))
+    # print "Number of eigenvectors: " + str(len(u))
     # We're only keeping 75% of the number of eigenvector u[i]
     # This will correspond to the largest eigenvalues
-    # First we will sort our eigenvalues 
-    real_eigval = []
-    for i in range(len(eigval)):
-        print i
-        real_eigval.append(eigval[i].real)
-    real_eigval = numpy.asarray(real_eigval)
-    idx = real_eigval.argsort()[::-1]   
-    sorted_eigval = real_eigval[idx]
-    sorted_u = numpy.empty(len(u))
-    print u[idx]
-    # sorted_u = u[:,idx]
-    # sorted_eigval = sorted(eigval.real)
-    # sorted_index = sorted(range(len(eigval.real)), key=lambda k: eigval[k])
-    # print sorted_eigval
-    # print sorted_index
-
-    for i in range(1,(int(0.75*len(u))+4)):
-        u_reduced.append(u[i])
-    # u_reduced[i] are called Eigenfaces
+    # First we will sort our eigenvalues
+    idx = eigval.argsort()[::-1]
+    sorted_eigval = eigval[idx]
+    # Now we will sort our eigenvectors with the index from our eigenvalues
+    sorted_u = []
+    for i in range(0, len(idx)):
+        sorted_u.append(u[idx[i]])
+    # numpy.savetxt('sorted_eigval.out', sorted_eigval, delimiter=',')
+    # Now we will save a fraction of the number of eigenvectors
+    for i in range(0, int(0.75*len(u))):
+        u_reduced.append(sorted_u[i])
+    # print "Size of the Reduced Eigenvector: " + str(len(u_reduced[0]))
+    print "Number of reduced eigenvectors: " + str(len(u_reduced))
+    # u_reduced are called Eigenfaces
     # Now lets represent each face in this basis
     sigma = []
     omega = []
     for i, val in enumerate(list_norm_train):
         sigma = []
         for j, val in enumerate(u_reduced):
-            w = numpy.dot(u_reduced[j].T,list_norm_train[i])
+            w = numpy.dot(u_reduced[j].T, list_norm_train[i])
             sigma.append(w.real)
             sigma_array = numpy.asarray(sigma)
         omega.append(sigma_array)
-    #print omega
-    print "size of eigenvector" + str(len(omega[0]))
-    print "size of omega" + str(len(omega))
-    #return eigval, eigvec
+    # print omega
+    print "Size of basis vector: " + str(len(omega[0]))
+    print "Size of Omega: " + str(len(omega))
+    # return eigval, eigvec
     return omega, train_array, u, u_reduced
 
 # def visualize_eigenfaces(_eigenfaceMatrix):
@@ -131,12 +134,6 @@ def read_train_images(_data,_class):
 
 if __name__ == "__main__":
     read_csv()
-    #val, vec = read_train_images(train_loc, train_class)
+    # val, vec = read_train_images(train_loc, train_class)
     omega = read_train_images(train_loc, train_class)
     print 'Finished'
-    #print train_array
-    #print mean/len(mean)
-    #print val
-    #print vec
-    
-
