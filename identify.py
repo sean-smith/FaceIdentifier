@@ -32,9 +32,9 @@ class Recognize:
 				'identify_func': self.identify_digits,
 			},
 			"net_test.xml": {
-				'hidden_dim': 15,
+				'hidden_dim': 150,
 				'nb_classes': 40,
-				'in_dim': 30,
+				'in_dim': 300,
 				'train_func': self.train_images,
 				'identify_func': self.identify3,
 			},
@@ -72,21 +72,15 @@ class Recognize:
 		
 
 	def classify(self):
-
+		print "self.d[self.path]['in_dim'] = ", self.d[self.path]['in_dim']
 		self.classify = ClassificationDataSet(self.d[self.path]['in_dim'], target=1, nb_classes=self.d[self.path]['nb_classes'])
+
 		self.d[self.path]['train_func']()
 
-		# self.training, self.test = self.classify.splitWithProportion(.30)
-		
-		
-		print "Input and output dimensions: ", self.classify.indim, self.classify.outdim
-
-		# convert binary value to a number
 		self.classify._convertToOneOfMany()
 
-		# self.training._convertToOneOfMany()
-		# self.test._convertToOneOfMany()
-
+		print "self.classify.outdim = ", self.classify.outdim	
+		print "Input and output dimensions: ", self.classify.indim, self.classify.outdim
 		print "Number of training patterns: ", len(self.classify)
 		print "Input and output dimensions: ", self.classify.indim, self.classify.outdim
 		return self.classify
@@ -123,15 +117,15 @@ class Recognize:
 			# print label
 			l = self.net.activate(img)
 			max_index, max_value = max(enumerate(l), key=lambda x: x[1])
-			print str(label)+"   "+str(max_index), int(label) == int(max_index)
+			print str(label)+"   "+str(max_index), int(label - 1) == int(max_index)
 
 
 	def train(self):
 		print "Enter the number of times to train, -1 means train until convergence:"
 		t = int(raw_input())
 		print "Training the Neural Net"
-		print "self.net.outdim = "+str(self.net.outdim)
-		print "self.classify.outdim = "+str(self.classify.outdim)
+		print "self.net.indim = "+str(self.net.indim)
+		print "self.classify.indim = "+str(self.classify.indim)
 
 		trainer = BackpropTrainer(self.net, dataset=self.classify, momentum=0.1, verbose=True, weightdecay=0.01)
 		
@@ -166,7 +160,8 @@ class Recognize:
 		# Call eigenfaces here
 		train_loc, self.train_class = eigenfaces.read_csv()
 		self.omega, train_array, u, u_reduced = eigenfaces.read_train_images(train_loc, self.train_class)
-		
+
+
 		for i in range(len(self.omega)):
 			img = self.omega[i]
 			label = self.train_class[i]
