@@ -144,7 +144,7 @@ def visualize_eigenfaces(_eigenfaceMatrix, height, width):
         r = random.randrange(0, length)
         fig.add_subplot(2, 3, i)
         if i == 2:
-            pylab.title('Eigenvaces samples')
+            pylab.title('Eigenfaces samples')
         img = numpy.reshape(_eigenfaceMatrix[r], (height, width))
         img = img - numpy.min(img)
         img = img * (1/numpy.max(img))
