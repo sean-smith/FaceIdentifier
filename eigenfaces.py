@@ -5,14 +5,20 @@ import os
 import scipy.sparse.linalg as lin
 from numpy.linalg import matrix_rank
 from numpy import linalg as LA
+import scipy.io
+import random
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import matplotlib.cm as cm
+import pylab
 
-train_loc = [] # List of paths of training set
-train_class = [] # List of classes (0,1,...,n) of the training set
-test_loc = [] # List of paths of testing set
-test_class = [] # List of classes (0,1,...,n) of the testing set
-train_array = [] # List of N^2x1 vectors corresponding to each face
-u = [] # Extended eigenvectors M
-u_reduced = [] # Reduced eigenvectors to K = 75% M
+train_loc = []  # List of paths of training set
+train_class = []  # List of classes (0,1,...,n) of the training set
+test_loc = []  # List of paths of testing set
+test_class = []  # List of classes (0,1,...,n) of the testing set
+train_array = []  # List of N^2x1 vectors corresponding to each face
+u = []  # Extended eigenvectors M
+u_reduced = []  # Reduced eigenvectors to K = 75% M
 
 
 def read_csv():
@@ -20,8 +26,8 @@ def read_csv():
     # img = cv2.imread("/home/davicho/Documents/qt-workspace/CS585/Homeworks/FaceIdentifier/faces/s1/1.pgm")
     # img_flat = img.flatten()
 
-    for person in range(1,41):
-        for num in range(1,11):
+    for person in range(1,10):
+        for num in range(1, 11):
             path = 'faces/s'+str(person)+'/'+str(num)+'.pgm'
 
             train_loc.append(path)
@@ -52,10 +58,11 @@ def read_csv():
     # print test_class
     # return train_loc, train_class, test_loc, test_class
 
-def read_train_images(_data,_class):
+
+def read_train_images(_data, _class):
     # Read each image
     for i in _data:
-        img = cv2.imread(i,0)
+        img = cv2.imread(i, 0)
         img_flat = img.flatten()
         # Build our train_array list
         train_array.append(img_flat)
@@ -127,13 +134,47 @@ def read_train_images(_data,_class):
     # return eigval, eigvec
     return omega, train_array, u, u_reduced
 
-# def visualize_eigenfaces(_eigenfaceMatrix):
-#     # Here we input our eigenfaces that will classify our data
-#     for i, val in enumerate(_eigenfaceMatrix):
 
+def visualize_eigenfaces(_eigenfaceMatrix, height, width):
+    # Here we input our eigenfaces that will classify our data
+    # fig = plt.figure()
+    fig = pylab.figure()
+    length = len(_eigenfaceMatrix)
+    for i in range(1, 7):
+        r = random.randrange(0, length)
+        fig.add_subplot(2, 3, i)
+        if i == 2:
+            pylab.title('Eigenfaces samples')
+        img = numpy.reshape(_eigenfaceMatrix[r], (height, width))
+        img = img - numpy.min(img)
+        img = img * (1/numpy.max(img))
+        pylab.imshow(img, cmap=cm.Greys_r)
+    pylab.show()
+
+
+def extractFace(_img):
+    cascade = cv2.CascadeClassifier("haarcascade_frontalface_alt.xml")
+    rects = cascade.detectMultiScale(_img)
+    for x, y, width, height in rects:
+        roi = _img[y:(y+height), x:(x+width)]
+        gray_image = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+        gray_image = cv2.resize(gray_image, (150, 150))
+    return gray_image
 
 if __name__ == "__main__":
     read_csv()
-    # val, vec = read_train_images(train_loc, train_class)
-    omega = read_train_images(train_loc, train_class)
+    [omega, t_array, v, v_reduced] = read_train_images(train_loc, train_class)
+    height = 112
+    width = 92
+    visualize_eigenfaces(v_reduced, height, width)
+    # aa = numpy.reshape(v_reduced[1], (112, 92))
+    # # scipy.io.savemat('arrdata.mat', mdict={'aa': aa})
+    # # aa = aa * 256
+    # aa = aa - numpy.min(aa)
+    # aa = aa * (1/numpy.max(aa))
+
+    # # print numpy.min(aa), numpy.max(aa)
+    # cv2.imshow("eigenface", aa)
+    # cv2.waitKey(0)
+
     print 'Finished'
