@@ -38,6 +38,7 @@ class Recognize:
 				'train_func': self.train_images,
 				'identify_func': self.identify3,
 				'split_percent': .80,
+				'faces_per_person': 10,
 			},
 			"net.xml": {
 				'hidden_dim': 106,
@@ -176,7 +177,7 @@ class Recognize:
 
 		# 0 < split_percent < 1
 		# 0 < test_number < 10
-		test_number = int(self.d[self.path]['split_percent'] * 10)
+		test_number = int(self.d[self.path]['split_percent'] * self.d['faces_per_person'])
 		print "test_number", test_number
 
 		for i in range(len(self.omega)):
