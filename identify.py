@@ -37,6 +37,7 @@ class Recognize:
 				'in_dim': 300,
 				'train_func': self.train_images,
 				'identify_func': self.identify3,
+				'split_percent': .80,
 			},
 			"net.xml": {
 				'hidden_dim': 106,
@@ -69,15 +70,25 @@ class Recognize:
  			return NetworkReader.readFrom(self.path) 
 		else:
  			return buildNetwork(self.classify.indim, self.d[self.path]['hidden_dim'], self.classify.outdim, outclass=SoftmaxLayer)
-		
+	
+	def get_max_index(self, l):
+		max_index, max_value = max(enumerate(l), key=lambda x: x[1])
+		return max_index
 
 	def classify(self):
 		print "self.d[self.path]['in_dim'] = ", self.d[self.path]['in_dim']
 		self.classify = ClassificationDataSet(self.d[self.path]['in_dim'], target=1, nb_classes=self.d[self.path]['nb_classes'])
+		self.train_data = ClassificationDataSet(self.d[self.path]['in_dim'], target=1, nb_classes=self.d[self.path]['nb_classes'])
+		self.test_data = ClassificationDataSet(self.d[self.path]['in_dim'], target=1, nb_classes=self.d[self.path]['nb_classes'])
 
+		# add data to self.classify dataset
 		self.d[self.path]['train_func']()
 
+		# turns 1 => [0,1,...]
 		self.classify._convertToOneOfMany()
+		self.train_data._convertToOneOfMany()
+		self.test_data._convertToOneOfMany()
+
 
 		print "self.classify.outdim = ", self.classify.outdim	
 		print "Input and output dimensions: ", self.classify.indim, self.classify.outdim
@@ -111,13 +122,13 @@ class Recognize:
 			print str(i)+"   "+str(max_index), i == max_index
 
 	def identify3(self, i):
-		for i in range(len(self.omega)):
-			img = self.omega[i]
-			label = self.train_class[i]
-			# print label
+		for i in range(len(self.test_data['input'])):
+			img = self.test_data['input'][i]
+			label = self.test_data['target'][i]
 			l = self.net.activate(img)
-			max_index, max_value = max(enumerate(l), key=lambda x: x[1])
-			print str(label)+"   "+str(max_index), int(label - 1) == int(max_index)
+			result = self.get_max_index(l)
+			label = self.get_max_index(label)
+			print str(label)+"   "+str(result), int(label) == int(result)
 
 
 	def train(self):
@@ -125,17 +136,19 @@ class Recognize:
 		t = int(raw_input())
 		print "Training the Neural Net"
 		print "self.net.indim = "+str(self.net.indim)
-		print "self.classify.indim = "+str(self.classify.indim)
+		print "self.train_data.indim = "+str(self.train_data.indim)
 
-		trainer = BackpropTrainer(self.net, dataset=self.classify, momentum=0.1, verbose=True, weightdecay=0.01)
+		trainer = BackpropTrainer(self.net, dataset=self.train_data, momentum=0.1, verbose=True, weightdecay=0.01)
 		
 		if t == -1:
 			trainer.trainUntilConvergence()
 		else:
 			for i in range(t):
 				trainer.trainEpochs(1)
-				trnresult = percentError( trainer.testOnClassData(), self.classify['class'])
-				tstresult = percentError( trainer.testOnClassData(dataset=self.classify), self.classify['class'] )
+				trnresult = percentError( trainer.testOnClassData(), self.train_data['class'])
+				# print self.test_data
+
+				tstresult = percentError( trainer.testOnClassData(dataset=self.test_data), self.test_data['class'] )
 
 				print "epoch: %4d" % trainer.totalepochs, \
 					"  train error: %5.2f%%" % trnresult, \
@@ -161,43 +174,39 @@ class Recognize:
 		train_loc, self.train_class = eigenfaces.read_csv()
 		self.omega, train_array, u, u_reduced = eigenfaces.read_train_images(train_loc, self.train_class)
 
+		# 0 < split_percent < 1
+		# 0 < test_number < 10
+		test_number = int(self.d[self.path]['split_percent'] * 10)
+		print "test_number", test_number
 
 		for i in range(len(self.omega)):
 			img = self.omega[i]
 			label = self.train_class[i]
+
+			# add data
 			self.classify.addSample(img, int(label)-1)
 
-			
+			if (i % 10) >= test_number:
+				self.test_data.addSample(img, int(label) - 1)
+			else:
+				self.train_data.addSample(img, int(label) - 1)
 
-		# for i in range(1, 5):
-		# 	for num in range(1,11):
-		# 		x = 'faces/s'+str(i)+'/'+str(num)+'.pgm'
-		# 		print x
-		# 		img = cv2.imread(x, 0)
-		# 		height, width = img.shape
-		# 		print "Training...", "Person = "+str(i)
-		# 		# print type(np.ravel(img)[0]), type(np.int64(i-1))
-		# 		self.classify.addSample(np.ravel(img), np.int64(i-1))
+		print "size of test data", len(self.test_data['input'])
+		print "size of train data", len(self.train_data['input'])
+
+
 
 	def train_images2(self):
 		self.x = datasets.fetch_olivetti_faces()
 		for i in range(41):
-			#print type(self.x.data[i]), type(self.x.target[i])
 			self.classify.addSample(self.x.data[i], self.x.target[i])
 		
 
 if __name__ == "__main__":
 	m = Recognize()
-	m.identify(0)
+	# m.identify(0)
 	m.identify(1)
 	m.identify(2)
 	m.identify(3)
 	m.identify(4)
-
-	# m.identify(1)
-	# m.identify(2)
-	# m.identify(3)
-	# m.identify(4)
-	# m.identify(5)
-	# m.identify(6)
 
