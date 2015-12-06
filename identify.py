@@ -18,10 +18,10 @@ import numpy as np
 import cv2
 
 import eigenfaces
+import config
 
 
 class Recognize:
-
 	def __init__(self):
 		self.d = {
 			"train_numbers.xml": {
@@ -129,7 +129,7 @@ class Recognize:
 			l = self.net.activate(img)
 			result = self.get_max_index(l)
 			label = self.get_max_index(label)
-			print str(label)+"   "+str(result), int(label) == int(result)
+			print str(label)+"\t"+str(result)+"\t"+ str(int(label) == int(result))
 
 
 	def train(self):
@@ -177,7 +177,7 @@ class Recognize:
 
 		# 0 < split_percent < 1
 		# 0 < test_number < 10
-		test_number = int(self.d[self.path]['split_percent'] * self.d['faces_per_person'])
+		test_number = int(self.d[self.path]['split_percent'] * self.d[self.path]['faces_per_person'])
 		print "test_number", test_number
 
 		for i in range(len(self.omega)):
