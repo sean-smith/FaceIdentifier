@@ -40,16 +40,16 @@
 import os
 import shutil
 def copy_rename(old_file_name, new_file_name):
-        src_dir= os.curdir
-        print src_dir
-        dst_dir= os.path.join(os.curdir , "subfolder")
-        print dst_dir
+        src_dir= os.path.join(os.curdir , "faces2")
+        print "src_dir", src_dir
+        dst_dir= os.path.join(os.curdir , "faces2/subfolder")
+        print "dst_dir", dst_dir
         src_file = os.path.join(src_dir, old_file_name)
-        print src_file
+        print "src_file", src_file
         shutil.copy(src_file,dst_dir)
         
         dst_file = os.path.join(dst_dir, old_file_name)
-        print dst_file
+        print "dst_file", dst_file
         new_dst_file_name = os.path.join(dst_dir, new_file_name)
         print new_dst_file_name
         os.rename(dst_file, new_dst_file_name)
@@ -65,7 +65,7 @@ def main():
             idx = '00' + idx
         elif (i >= 10 and i < 100):
             idx = '0' + idx
-        face = "faces2/image_" + idx + ".jpg"
+        face = "image_" + idx + ".jpg"
         new_face = '11_0' + str(i) + ".jpg"
         copy_rename(face,new_face)
 
