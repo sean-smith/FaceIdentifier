@@ -18,43 +18,44 @@ import numpy as np
 import cv2
 
 import eigenfaces
+import config
 
 
 class Recognize:
-
 	def __init__(self):
-		self.d = {
-			"train_numbers.xml": {
-				'hidden_dim': 32,
-				'nb_classes': 10,
-				'in_dim': 64,
-				'train_func': self.train_digits,
-				'identify_func': self.identify_digits,
-			},
-			"net_test.xml": {
-				'hidden_dim': 150,
-				'nb_classes': 40,
-				'in_dim': 300,
-				'train_func': self.train_images,
-				'identify_func': self.identify3,
-				'split_percent': .80,
-				'faces_per_person': 10,
-			},
-			"net.xml": {
-				'hidden_dim': 106,
-				'nb_classes': 40,
-				'in_dim': 10304,
-				'train_func': self.train_images,
-				'identify_func': self.identify1,
-			},
-			"net_sklearn.xml": {
-				'hidden_dim': 64,
-				'nb_classes': 40,
-				'in_dim': 4096,
-				'train_func': self.train_images2,
-				'identify_func': self.identify2,
-			},
-		}
+		self.d = config.d()
+		# self.d = {
+		# 	"train_numbers.xml": {
+		# 		'hidden_dim': 32,
+		# 		'nb_classes': 10,
+		# 		'in_dim': 64,
+		# 		'train_func': self.train_digits,
+		# 		'identify_func': self.identify_digits,
+		# 	},
+		# 	"net_test.xml": {
+		# 		'hidden_dim': 150,
+		# 		'nb_classes': 40,
+		# 		'in_dim': 300,
+		# 		'train_func': self.train_images,
+		# 		'identify_func': self.identify3,
+		# 		'split_percent': .80,
+		# 		'faces_per_person': 10,
+		# 	},
+		# 	"net.xml": {
+		# 		'hidden_dim': 106,
+		# 		'nb_classes': 40,
+		# 		'in_dim': 10304,
+		# 		'train_func': self.train_images,
+		# 		'identify_func': self.identify1,
+		# 	},
+		# 	"net_sklearn.xml": {
+		# 		'hidden_dim': 64,
+		# 		'nb_classes': 40,
+		# 		'in_dim': 4096,
+		# 		'train_func': self.train_images2,
+		# 		'identify_func': self.identify2,
+		# 	},
+		# }
 		self.trained = False
 		self.path = "net_test.xml"
 		self.x = None
@@ -83,6 +84,8 @@ class Recognize:
 		self.test_data = ClassificationDataSet(self.d[self.path]['in_dim'], target=1, nb_classes=self.d[self.path]['nb_classes'])
 
 		# add data to self.classify dataset
+		# train_func = eval(self.d[self.path]['train_func'])()
+		# self.train_func()
 		self.d[self.path]['train_func']()
 
 		# turns 1 => [0,1,...]
@@ -122,14 +125,14 @@ class Recognize:
 			max_index, max_value = max(enumerate(l), key=lambda x: x[1])
 			print str(i)+"   "+str(max_index), i == max_index
 
-	def identify3(self, i):
+	def identify3(self, m):
 		for i in range(len(self.test_data['input'])):
 			img = self.test_data['input'][i]
 			label = self.test_data['target'][i]
 			l = self.net.activate(img)
 			result = self.get_max_index(l)
 			label = self.get_max_index(label)
-			print str(label)+"   "+str(result), int(label) == int(result)
+			print str(label)+"\t"+str(result)+"\t"+ str(int(label) == int(result))
 
 
 	def train(self):
@@ -205,9 +208,5 @@ class Recognize:
 
 if __name__ == "__main__":
 	m = Recognize()
-	# m.identify(0)
 	m.identify(1)
-	m.identify(2)
-	m.identify(3)
-	m.identify(4)
 
