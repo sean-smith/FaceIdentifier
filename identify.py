@@ -76,7 +76,7 @@ class Recognize:
         }
         self.trained = False
         # When changing from net_color_caltech to net_color_caltech_eq change line 42 in eigenfaces.py
-        self.path = "net_color_caltech.xml"
+        self.path = "net_color_caltech_eq.xml"
         self.x = None
         self.all_data = self.classify()
         self.net = self.buildNet()
@@ -147,6 +147,7 @@ class Recognize:
     # For caltech images
     def identify3(self, m):
         idx = 1
+        fig = figure()
         for i in range(len(self.test_data['input'])):
             img = self.test_data['input'][i]
             label = self.test_data['target'][i]
@@ -159,7 +160,6 @@ class Recognize:
                 print 'labeled_faces/'+format(int(result)+1,'02')+'_08.jpg'
                 img_label = pylab.imread('labeled_faces/'+format(int(label)+1,'02')+'_08.jpg')
                 img_resut = pylab.imread('labeled_faces/'+format(int(result)+1,'02')+'_08.jpg')
-                fig = figure()
                 if idx == 2:
                     pylab.title('Results for the Neural Network')
                 fig.add_subplot(3, 2, idx)
