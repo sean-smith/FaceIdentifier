@@ -75,7 +75,7 @@ class Recognize:
 		}
 		self.trained = False
 		# When changing from net_color_caltech to net_color_caltech_eq change line 42 in eigenfaces.py
-		self.path = "net_color_caltech.xml"
+		self.path = "net_color_caltech_eq.xml"
 		self.x = None
 		self.all_data = self.classify()
 		self.net = self.buildNet()
