@@ -38,8 +38,8 @@ def read_csv():
     for person in range(1, 11):
         for num in range(0, 10):
             facepath = format(person, '02')+'_'+format(num, '02')+'.jpg'
-            path = 'faces1/cropped/' + facepath
-            # path = 'faces1/cropped_hq/' + facepath
+            # path = 'faces1/cropped/' + facepath
+            path = 'faces1/cropped_hq/' + facepath
 
             train_loc.append(path)
             train_class.append(person)

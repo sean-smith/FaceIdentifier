@@ -56,7 +56,7 @@ def copy_rename(old_file_name, new_file_name):
 
 
 def main():
-    indexes = [1, 2, 4, 5, 6, 7, 8, 9, 11, 12]
+    indexes = [i for i in range(242, 251+1)]
 
     for i in range(0, 10):
         # load an image to search for faces
@@ -66,7 +66,7 @@ def main():
         elif (i >= 10 and i < 100):
             idx = '0' + idx
         face = "faces2/image_" + idx + ".jpg"
-        new_face = '01_0' + str(i) + ".jpg"
+        new_face = '11_0' + str(i) + ".jpg"
         copy_rename(face,new_face)
 
 if __name__ == "__main__":

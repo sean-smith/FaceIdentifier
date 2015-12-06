@@ -1,6 +1,6 @@
 import identify
 
-identify.Recognize()
+# identify.Recognize()
 
 def d():
 	return {

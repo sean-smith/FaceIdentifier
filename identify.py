@@ -18,48 +18,65 @@ import numpy as np
 import cv2
 
 import eigenfaces
-import config
+# import config
 
 
 class Recognize:
 	def __init__(self):
-		self.d = config.d()
-		# self.d = {
-		# 	"train_numbers.xml": {
-		# 		'hidden_dim': 32,
-		# 		'nb_classes': 10,
-		# 		'in_dim': 64,
-		# 		'train_func': self.train_digits,
-		# 		'identify_func': self.identify_digits,
-		# 	},
-		# 	"net_test.xml": {
-		# 		'hidden_dim': 150,
-		# 		'nb_classes': 40,
-		# 		'in_dim': 300,
-		# 		'train_func': self.train_images,
-		# 		'identify_func': self.identify3,
-		# 		'split_percent': .80,
-		# 		'faces_per_person': 10,
-		# 	},
-		# 	"net.xml": {
-		# 		'hidden_dim': 106,
-		# 		'nb_classes': 40,
-		# 		'in_dim': 10304,
-		# 		'train_func': self.train_images,
-		# 		'identify_func': self.identify1,
-		# 	},
-		# 	"net_sklearn.xml": {
-		# 		'hidden_dim': 64,
-		# 		'nb_classes': 40,
-		# 		'in_dim': 4096,
-		# 		'train_func': self.train_images2,
-		# 		'identify_func': self.identify2,
-		# 	},
-		# }
+		self.d = {
+			"train_numbers.xml": {
+				'hidden_dim': 32,
+				'nb_classes': 10,
+				'in_dim': 64,
+				'train_func': self.train_digits,
+				'identify_func': self.identify_digits,
+			},
+			"net_test.xml": {
+				'hidden_dim': 150,
+				'nb_classes': 40,
+				'in_dim': 300,
+				'train_func': self.train_images,
+				'identify_func': self.identify3,
+				'split_percent': .80,
+				'faces_per_person': 10,
+			},
+			"net_color_caltech.xml": {
+				'hidden_dim': 150,
+				'nb_classes': 10,
+				'in_dim': 75,
+				'train_func': self.train_images,
+				'identify_func': self.identify3,
+				'split_percent': .80,
+				'faces_per_person': 10,
+			},
+			"net_color_caltech_eq.xml": {
+				'hidden_dim': 150,
+				'nb_classes': 10,
+				'in_dim': 75,
+				'train_func': self.train_images,
+				'identify_func': self.identify3,
+				'split_percent': .80,
+				'faces_per_person': 10,
+			},
+			"net.xml": {
+				'hidden_dim': 106,
+				'nb_classes': 40,
+				'in_dim': 10304,
+				'train_func': self.train_images,
+				'identify_func': self.identify1,
+			},
+			"net_sklearn.xml": {
+				'hidden_dim': 64,
+				'nb_classes': 40,
+				'in_dim': 4096,
+				'train_func': self.train_images2,
+				'identify_func': self.identify2,
+			},
+		}
 		self.trained = False
-		self.path = "net_test.xml"
+		self.path = "net_color_caltech_eq.xml"
 		self.x = None
-		self.classify = self.classify()
+		self.all_data = self.classify()
 		self.net = self.buildNet()
 		self.trainer = self.train()
 
@@ -71,7 +88,7 @@ class Recognize:
 			self.trained = True
  			return NetworkReader.readFrom(self.path) 
 		else:
- 			return buildNetwork(self.classify.indim, self.d[self.path]['hidden_dim'], self.classify.outdim, outclass=SoftmaxLayer)
+ 			return buildNetwork(self.all_data.indim, self.d[self.path]['hidden_dim'], self.all_data.outdim, outclass=SoftmaxLayer)
 	
 	def get_max_index(self, l):
 		max_index, max_value = max(enumerate(l), key=lambda x: x[1])
@@ -79,26 +96,24 @@ class Recognize:
 
 	def classify(self):
 		print "self.d[self.path]['in_dim'] = ", self.d[self.path]['in_dim']
-		self.classify = ClassificationDataSet(self.d[self.path]['in_dim'], target=1, nb_classes=self.d[self.path]['nb_classes'])
+		self.all_data = ClassificationDataSet(self.d[self.path]['in_dim'], target=1, nb_classes=self.d[self.path]['nb_classes'])
 		self.train_data = ClassificationDataSet(self.d[self.path]['in_dim'], target=1, nb_classes=self.d[self.path]['nb_classes'])
 		self.test_data = ClassificationDataSet(self.d[self.path]['in_dim'], target=1, nb_classes=self.d[self.path]['nb_classes'])
 
-		# add data to self.classify dataset
-		# train_func = eval(self.d[self.path]['train_func'])()
-		# self.train_func()
+		# add data to self.all_data dataset
 		self.d[self.path]['train_func']()
 
 		# turns 1 => [0,1,...]
-		self.classify._convertToOneOfMany()
+		self.all_data._convertToOneOfMany()
 		self.train_data._convertToOneOfMany()
 		self.test_data._convertToOneOfMany()
 
 
-		print "self.classify.outdim = ", self.classify.outdim	
-		print "Input and output dimensions: ", self.classify.indim, self.classify.outdim
-		print "Number of training patterns: ", len(self.classify)
-		print "Input and output dimensions: ", self.classify.indim, self.classify.outdim
-		return self.classify
+		print "self.all_data.outdim = ", self.all_data.outdim	
+		print "Input and output dimensions: ", self.all_data.indim, self.all_data.outdim
+		print "Number of training patterns: ", len(self.all_data)
+		print "Input and output dimensions: ", self.all_data.indim, self.all_data.outdim
+		return self.all_data
 
 	def identify_digits(self, i):
 		for image, label in self.images_and_labels:
@@ -170,7 +185,7 @@ class Recognize:
 		x = datasets.load_digits()
 		self.images_and_labels = list(zip(x.images, x.target))
 		for image, label in self.images_and_labels:
-			self.classify.addSample(np.ravel(image), label)
+			self.all_data.addSample(np.ravel(image), label)
 
 
 	def train_images(self):
@@ -188,7 +203,7 @@ class Recognize:
 			label = self.train_class[i]
 
 			# add data
-			self.classify.addSample(img, int(label)-1)
+			self.all_data.addSample(img, int(label)-1)
 
 			if (i % 10) >= test_number:
 				self.test_data.addSample(img, int(label) - 1)
@@ -203,7 +218,7 @@ class Recognize:
 	def train_images2(self):
 		self.x = datasets.fetch_olivetti_faces()
 		for i in range(41):
-			self.classify.addSample(self.x.data[i], self.x.target[i])
+			self.all_data.addSample(self.x.data[i], self.x.target[i])
 		
 
 if __name__ == "__main__":
