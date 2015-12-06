@@ -40,9 +40,9 @@
 import os
 import shutil
 def copy_rename(old_file_name, new_file_name):
-        src_dir= os.path.join(os.curdir , "faces2")
+        src_dir= os.path.join(os.curdir , "unlabeled_faces")
         print "src_dir", src_dir
-        dst_dir= os.path.join(os.curdir , "faces2/subfolder")
+        dst_dir= os.path.join(os.curdir , "labeled_faces")
         print "dst_dir", dst_dir
         src_file = os.path.join(src_dir, old_file_name)
         print "src_file", src_file
