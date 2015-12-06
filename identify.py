@@ -177,7 +177,7 @@ class Recognize:
 
 		# 0 < split_percent < 1
 		# 0 < test_number < 10
-		test_number = int(self.d[self.path]['split_percent'] * self.d['faces_per_person'])
+		test_number = int(self.d[self.path]['split_percent'] * self.d[self.path]['faces_per_person'])
 		print "test_number", test_number
 
 		for i in range(len(self.omega)):

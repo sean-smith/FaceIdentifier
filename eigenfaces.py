@@ -26,9 +26,20 @@ def read_csv():
     # img = cv2.imread("/home/davicho/Documents/qt-workspace/CS585/Homeworks/FaceIdentifier/faces/s1/1.pgm")
     # img_flat = img.flatten()
 
-    for person in range(1,41):
-        for num in range(1, 11):
-            path = 'faces/s'+str(person)+'/'+str(num)+'.pgm'
+    ''' Code for folder 'faces' '''
+    # for person in range(1, 41):
+    #     for num in range(1, 11):
+    #         path = 'faces/s'+str(person)+'/'+str(num)+'.pgm'
+
+    #         train_loc.append(path)
+    #         train_class.append(person)
+
+    ''' Code for folder 'faces1/cropped' and 'faces1/cropped_hq' '''
+    for person in range(1, 11):
+        for num in range(0, 10):
+            facepath = format(person, '02')+'_'+format(num, '02')+'.jpg'
+            path = 'faces1/cropped/' + facepath
+            # path = 'faces1/cropped_hq/' + facepath
 
             train_loc.append(path)
             train_class.append(person)
@@ -40,6 +51,7 @@ def read_csv():
 def read_train_images(_data, _class):
     # Read each image
     for i in _data:
+        # print i
         img = cv2.imread(i, 0)
         img_flat = img.flatten()
         # Build our train_array list
@@ -142,17 +154,10 @@ def extractFace(_img):
 if __name__ == "__main__":
     read_csv()
     [omega, t_array, v, v_reduced] = read_train_images(train_loc, train_class)
-    height = 112
-    width = 92
+    # height = 112
+    # width = 92
+    height = 150
+    width = 150
     visualize_eigenfaces(v_reduced, height, width)
-    # aa = numpy.reshape(v_reduced[1], (112, 92))
-    # # scipy.io.savemat('arrdata.mat', mdict={'aa': aa})
-    # # aa = aa * 256
-    # aa = aa - numpy.min(aa)
-    # aa = aa * (1/numpy.max(aa))
-
-    # # print numpy.min(aa), numpy.max(aa)
-    # cv2.imshow("eigenface", aa)
-    # cv2.waitKey(0)
 
     print 'Finished'
