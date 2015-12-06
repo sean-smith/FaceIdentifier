@@ -42,8 +42,8 @@ class Recognize:
 			},
 			"net_color_caltech.xml": {
 				'hidden_dim': 150,
-				'nb_classes': 10,
-				'in_dim': 75,
+				'nb_classes': 19,
+				'in_dim': 142,
 				'train_func': self.train_images,
 				'identify_func': self.identify3,
 				'split_percent': .80,
@@ -51,8 +51,8 @@ class Recognize:
 			},
 			"net_color_caltech_eq.xml": {
 				'hidden_dim': 150,
-				'nb_classes': 10,
-				'in_dim': 75,
+				'nb_classes': 19,
+				'in_dim': 142,
 				'train_func': self.train_images,
 				'identify_func': self.identify3,
 				'split_percent': .80,
@@ -74,7 +74,7 @@ class Recognize:
 			},
 		}
 		self.trained = False
-		self.path = "net_color_caltech_eq.xml"
+		self.path = "net_color_caltech.xml"
 		self.x = None
 		self.all_data = self.classify()
 		self.net = self.buildNet()
