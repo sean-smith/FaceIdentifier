@@ -35,11 +35,11 @@ def read_csv():
     #         train_class.append(person)
 
     ''' Code for folder 'faces1/cropped' and 'faces1/cropped_hq' '''
-    for person in range(1, 11):
+    for person in range(1, 20):
         for num in range(0, 10):
             facepath = format(person, '02')+'_'+format(num, '02')+'.jpg'
             # path = 'faces1/cropped/' + facepath
-            path = 'faces1/cropped_hq/' + facepath
+            path = 'labeled_faces/cropped_hq/' + facepath
 
             train_loc.append(path)
             train_class.append(person)
