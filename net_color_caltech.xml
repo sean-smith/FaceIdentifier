@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <PyBrain>
 	<Network class="pybrain.structure.networks.feedforward.FeedForwardNetwork" name="FeedForwardNetwork-8">
-		<name val="'FeedForwardNetwork-8'"/>
+		<name val="u'FeedForwardNetwork-8'"/>
 		<Modules>
 			<LinearLayer class="pybrain.structure.modules.linearlayer.LinearLayer" inmodule="True" name="in">
 				<dim val="142"/>
