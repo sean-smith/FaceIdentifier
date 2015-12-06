@@ -23,6 +23,7 @@ import config
 
 class Recognize:
 	def __init__(self):
+		# self.d = config.d()
 		self.d = {
 			"train_numbers.xml": {
 				'hidden_dim': 32,
@@ -83,6 +84,8 @@ class Recognize:
 		self.test_data = ClassificationDataSet(self.d[self.path]['in_dim'], target=1, nb_classes=self.d[self.path]['nb_classes'])
 
 		# add data to self.classify dataset
+		# train_func = eval(self.d[self.path]['train_func'])()
+		# self.train_func()
 		self.d[self.path]['train_func']()
 
 		# turns 1 => [0,1,...]
@@ -122,7 +125,7 @@ class Recognize:
 			max_index, max_value = max(enumerate(l), key=lambda x: x[1])
 			print str(i)+"   "+str(max_index), i == max_index
 
-	def identify3(self, i):
+	def identify3(self, m):
 		for i in range(len(self.test_data['input'])):
 			img = self.test_data['input'][i]
 			label = self.test_data['target'][i]
@@ -205,9 +208,5 @@ class Recognize:
 
 if __name__ == "__main__":
 	m = Recognize()
-	# m.identify(0)
 	m.identify(1)
-	m.identify(2)
-	m.identify(3)
-	m.identify(4)
 
