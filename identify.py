@@ -74,6 +74,7 @@ class Recognize:
 			},
 		}
 		self.trained = False
+		# When changing from net_color_caltech to net_color_caltech_eq change line 42 in eigenfaces.py
 		self.path = "net_color_caltech.xml"
 		self.x = None
 		self.all_data = self.classify()
@@ -125,6 +126,7 @@ class Recognize:
 	def identify(self, i):
 		self.d[self.path]['identify_func'](i)
 
+	# For original Att data
 	def identify1(self, i):
 		print "Identifying Image 1"
 		for num in range(1,11):
@@ -134,12 +136,14 @@ class Recognize:
 			print str(i)+"   "+str(max_index), i == max_index
 			print l
 
+	# Handwritten Digits
 	def identify2(self, i):
 		for m in range(1,11):
 			l = self.net.activate(np.ravel(self.x.data[i * 10 + m]))
 			max_index, max_value = max(enumerate(l), key=lambda x: x[1])
 			print str(i)+"   "+str(max_index), i == max_index
 
+	# For caltech images
 	def identify3(self, m):
 		for i in range(len(self.test_data['input'])):
 			img = self.test_data['input'][i]
@@ -148,6 +152,7 @@ class Recognize:
 			result = self.get_max_index(l)
 			label = self.get_max_index(label)
 			print str(label)+"\t"+str(result)+"\t"+ str(int(label) == int(result))
+
 
 
 	def train(self):
