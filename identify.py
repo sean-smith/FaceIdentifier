@@ -76,7 +76,7 @@ class Recognize:
 		}
 		self.trained = False
 		# When changing from net_color_caltech to net_color_caltech_eq change line 42 in eigenfaces.py
-		self.path = "net_color_caltech.xml"
+		self.path = "train_numbers.xml"
 		self.x = None
 		self.all_data = self.classify()
 		self.net = self.buildNet()
@@ -122,7 +122,7 @@ class Recognize:
 			if label == i:
 				l = self.net.activate(np.ravel(image))
 				max_index, max_value = max(enumerate(l), key=lambda x: x[1])
-				print str(i)+"   "+str(max_index), i == max_index
+				print str(i)+"\t"+str(max_index)+"\t"+str(i == max_index)
 
 	def identify(self, i):
 		self.d[self.path]['identify_func'](i)
@@ -243,4 +243,13 @@ class Recognize:
 if __name__ == "__main__":
     m = Recognize()
     m.identify(1)
+    m.identify(2)
+    m.identify(3)
+    m.identify(4)
+    m.identify(5)
+    m.identify(6)
+    m.identify(7)
+    m.identify(8)
+    m.identify(9)
+    m.identify(0)
 
