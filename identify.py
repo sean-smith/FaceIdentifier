@@ -16,6 +16,7 @@ from numpy.random import multivariate_normal
 from sklearn import datasets
 import numpy as np
 import cv2
+import pylab
 
 import eigenfaces
 # import config
@@ -75,7 +76,7 @@ class Recognize:
 		}
 		self.trained = False
 		# When changing from net_color_caltech to net_color_caltech_eq change line 42 in eigenfaces.py
-		self.path = "net_color_caltech_eq.xml"
+		self.path = "net_color_caltech.xml"
 		self.x = None
 		self.all_data = self.classify()
 		self.net = self.buildNet()
@@ -145,6 +146,8 @@ class Recognize:
 
 	# For caltech images
 	def identify3(self, m):
+		# idx = 1
+		# fig = figure()
 		for i in range(len(self.test_data['input'])):
 			img = self.test_data['input'][i]
 			label = self.test_data['target'][i]
@@ -152,7 +155,19 @@ class Recognize:
 			result = self.get_max_index(l)
 			label = self.get_max_index(label)
 			print str(label)+"\t"+str(result)+"\t"+ str(int(label) == int(result))
-
+		# 	if i == 0 or i == 2 or i == 4:
+		# 		print 'labeled_faces/'+format(int(label)+1,'02')+'_08.jpg'
+		# 		print 'labeled_faces/'+format(int(result)+1,'02')+'_08.jpg'
+		# 		img_label = pylab.imread('labeled_faces/'+format(int(label)+1,'02')+'_08.jpg')
+		# 		img_resut = pylab.imread('labeled_faces/'+format(int(result)+1,'02')+'_08.jpg')
+		# 		if idx == 2:
+		# 			pylab.title('Results for the Neural Network')
+		# 		fig.add_subplot(3, 2, idx)
+		# 		pylab.imshow(img_label)
+		# 		fig.add_subplot(3, 2, idx+1)
+		# 		pylab.imshow(img_resut)
+		# 		idx = idx + 2
+		# show()
 
 
 	def train(self):
@@ -224,9 +239,8 @@ class Recognize:
 		self.x = datasets.fetch_olivetti_faces()
 		for i in range(41):
 			self.all_data.addSample(self.x.data[i], self.x.target[i])
-		
 
 if __name__ == "__main__":
-	m = Recognize()
-	m.identify(1)
+    m = Recognize()
+    m.identify(1)
 
